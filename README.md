@@ -4,7 +4,7 @@ A CLI tool that lets you browse and execute npm, pnpm, yarn, or bun scripts dire
 
 ## Todo
 
-- [ ] Check for `package.json` in current directory / project
+- [x] Check for `package.json` in current directory / project
 - [ ] Read file and parse key and values in `scripts` object in `package.json`
 - [ ] Print scripts to stdout as a list - use BubbleTea
 - [ ] Detect the package manager - using the lockfile?
