@@ -13,13 +13,13 @@ import (
 
 var docStyle = lipgloss.NewStyle().Margin(1, 2)
 
-type script struct {
+type Script struct {
 	name, command string
 }
 
-func (s script) Title() string       { return s.name }
-func (s script) Description() string { return s.command }
-func (s script) FilterValue() string { return s.name }
+func (s Script) Title() string       { return s.name }
+func (s Script) Description() string { return s.command }
+func (s Script) FilterValue() string { return s.name }
 
 func runScript(scriptName string) tea.Cmd {
 	command := exec.Command("npm", "run", scriptName)
@@ -44,7 +44,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if msg.String() == "enter" {
-			script, _ := m.list.SelectedItem().(script)
+			script, _ := m.list.SelectedItem().(Script)
 			return m, runScript(script.name)
 		}
 	case tea.WindowSizeMsg:
@@ -80,7 +80,7 @@ func main() {
 	var items []list.Item
 
 	for scriptKey, scriptValue := range parsedJson["scripts"].(map[string]interface{}) {
-		items = append(items, script{name: scriptKey, command: scriptValue.(string)})
+		items = append(items, Script{name: scriptKey, command: scriptValue.(string)})
 	}
 
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
