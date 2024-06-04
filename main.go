@@ -17,6 +17,8 @@ type Script struct {
 	name, command string
 }
 
+type CommandExecuted struct{}
+
 func (s Script) Title() string       { return s.name }
 func (s Script) Description() string { return s.command }
 func (s Script) FilterValue() string { return s.name }
@@ -24,7 +26,10 @@ func (s Script) FilterValue() string { return s.name }
 func runScript(scriptName string) tea.Cmd {
 	command := exec.Command("npm", "run", scriptName)
 	return tea.ExecProcess(command, func(err error) tea.Msg {
-		return tea.Quit
+		if err != nil {
+			return tea.Quit()
+		}
+		return CommandExecuted{}
 	})
 }
 
@@ -50,6 +55,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
+	case CommandExecuted:
+		return m, tea.Quit
 	}
 
 	var cmd tea.Cmd
@@ -72,6 +79,7 @@ func main() {
 	var parsedJson map[string]interface{}
 
 	parseErr := json.Unmarshal(packageJsonContent, &parsedJson)
+
 	if parseErr != nil {
 		fmt.Println(parseErr.Error())
 		os.Exit(1)
@@ -85,6 +93,10 @@ func main() {
 
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
 	m.list.Title = "Scripts to Run"
+	m.list.Styles.Title = lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#fff")).
+		Background(lipgloss.Color("#bc54c4")).
+		Padding(0, 1)
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
