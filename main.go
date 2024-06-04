@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,19 +14,26 @@ import (
 var docStyle = lipgloss.NewStyle().Margin(1, 2)
 
 type script struct {
-	title, description string
+	name, command string
 }
 
-func (s script) Title() string       { return s.title }
-func (s script) Description() string { return s.description }
-func (s script) FilterValue() string { return s.title }
+func (s script) Title() string       { return s.name }
+func (s script) Description() string { return s.command }
+func (s script) FilterValue() string { return s.name }
+
+func runScript(scriptName string) tea.Cmd {
+	command := exec.Command("npm", "run", scriptName)
+	return tea.ExecProcess(command, func(err error) tea.Msg {
+		return tea.Quit
+	})
+}
 
 type model struct {
 	list list.Model
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	return tea.SetWindowTitle("np-run")
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -33,6 +41,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
+		}
+
+		if msg.String() == "enter" {
+			script, _ := m.list.SelectedItem().(script)
+			return m, runScript(script.name)
 		}
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
@@ -67,12 +80,8 @@ func main() {
 	var items []list.Item
 
 	for scriptKey, scriptValue := range parsedJson["scripts"].(map[string]interface{}) {
-		fmt.Printf("%v: %v\n", scriptKey, scriptValue)
-
-		items = append(items, script{title: scriptKey, description: scriptValue.(string)})
+		items = append(items, script{name: scriptKey, command: scriptValue.(string)})
 	}
-
-	fmt.Println(items)
 
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
 	m.list.Title = "Scripts to Run"
