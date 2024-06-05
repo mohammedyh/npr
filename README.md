@@ -11,7 +11,9 @@ https://github.com/mohammedyh/np-run/assets/32526267/4b866d0e-9e0a-4251-b874-ad1
 - [x] Print scripts to stdout as a list - use BubbleTea
 - [x] Detect the package manager - using the lockfile?
 - [x] When enter is pressed for a chosen script, that script is run
+- [ ] Look at how to properly structure a Go program
 
 ### Nice-To-Have Features
 - [x] Install dependencies if `node_modules` isn't found
+  - [ ] Show spinner or progress bar while dependencies are installing
 - [x] Print something if multiple lockfiles are found
