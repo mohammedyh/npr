@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -24,6 +23,13 @@ func (s Script) Title() string       { return s.name }
 func (s Script) Description() string { return s.command }
 func (s Script) FilterValue() string { return s.name }
 
+var lockfilesToPackageManagers = map[string]string{
+	"pnpm-lock.yaml":    "pnpm",
+	"package-lock.json": "npm",
+	"bun.lockb":         "bun",
+	"yarn.lock":         "yarn",
+}
+
 func detectPackageManager() string {
 	var packageManager string
 	var lockfiles []string
@@ -37,12 +43,12 @@ func detectPackageManager() string {
 	files, readDirErr := os.ReadDir(cwd)
 
 	if readDirErr != nil {
-		fmt.Println(docStyle.Margin(0, 2).Render("Unable to read files and folders current directory"))
+		fmt.Println(docStyle.Margin(0, 2).Render("Unable to read contents of current directory"))
 		os.Exit(1)
 	}
 
 	for _, file := range files {
-		if strings.Contains(file.Name(), "lock") {
+		if _, setInMap := lockfilesToPackageManagers[file.Name()]; setInMap {
 			lockfiles = append(lockfiles, file.Name())
 		}
 
