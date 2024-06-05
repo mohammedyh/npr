@@ -79,6 +79,16 @@ func detectPackageManager() string {
 	return packageManager
 }
 
+func installDependencies(packageManager string) {
+	_, err := os.Stat("node_modules")
+
+	if err != nil {
+		command := exec.Command(packageManager, "install")
+		installOutput, _ := command.Output()
+		fmt.Println(string(installOutput))
+	}
+}
+
 func runScript(packageManager, scriptName string) tea.Cmd {
 	command := exec.Command(packageManager, "run", scriptName)
 	return tea.ExecProcess(command, func(err error) tea.Msg {
@@ -94,7 +104,8 @@ type model struct {
 }
 
 func (m model) Init() tea.Cmd {
-	detectPackageManager()
+	packageManager := detectPackageManager()
+	installDependencies(packageManager)
 	return tea.SetWindowTitle("np-run")
 }
 
