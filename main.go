@@ -53,7 +53,7 @@ func detectPackageManager() string {
 		}
 
 		if len(lockfiles) > 1 {
-			fmt.Println(docStyle.Margin(0, 2).Render("Muliple lockfiles found in", cwd))
+			fmt.Println(docStyle.Margin(0, 2).Render("Multiple lockfiles found in", cwd))
 			os.Exit(1)
 			break
 		}
