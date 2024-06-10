@@ -29,10 +29,11 @@ var lockfilesToPackageManagers = map[string]string{
 	"bun.lockb":         "bun",
 	"yarn.lock":         "yarn",
 }
+var packageManager string
 
 func detectPackageManager() string {
-	var packageManager string
 	var lockfiles []string
+
 	cwd, cwdErr := os.Getwd()
 
 	if cwdErr != nil {
@@ -53,7 +54,7 @@ func detectPackageManager() string {
 		}
 
 		if len(lockfiles) > 1 {
-			fmt.Println(docStyle.Margin(0, 2).Render("Multiple lockfiles found in", cwd))
+			fmt.Println(docStyle.UnsetMargins().Render("Multiple lockfiles found in", cwd))
 			os.Exit(1)
 			break
 		}
@@ -75,7 +76,6 @@ func detectPackageManager() string {
 	if packageManager == "" {
 		packageManager = "npm"
 	}
-
 	return packageManager
 }
 
@@ -104,7 +104,6 @@ type model struct {
 }
 
 func (m model) Init() tea.Cmd {
-	packageManager := detectPackageManager()
 	installDependencies(packageManager)
 	return tea.SetWindowTitle("np-run")
 }
@@ -140,16 +139,18 @@ func main() {
 	packageJsonContent, readFileErr := os.ReadFile("package.json")
 
 	if readFileErr != nil {
-		fmt.Println("package.json not found")
+		fmt.Println(docStyle.UnsetMargins().Render("package.json not found"))
 		os.Exit(1)
 	}
+
+	detectPackageManager()
 
 	var parsedJson map[string]interface{}
 
 	parseErr := json.Unmarshal(packageJsonContent, &parsedJson)
 
 	if parseErr != nil {
-		fmt.Println(parseErr.Error())
+		fmt.Println(docStyle.UnsetMargins().Render(parseErr.Error()))
 		os.Exit(1)
 	}
 
