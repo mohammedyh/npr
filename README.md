@@ -12,7 +12,7 @@ https://github.com/mohammedyh/np-run/assets/32526267/4b866d0e-9e0a-4251-b874-ad1
 - [x] Detect the package manager - using the lockfile?
 - [x] When enter is pressed for a chosen script, that script is run
 - [ ] Look at how to properly structure a Go program
-- [ ] Sort scripts in alphabetical order
+- [x] Sort scripts in alphabetical order
 
 ### Nice-To-Have Features
 - [x] Install dependencies if `node_modules` isn't found

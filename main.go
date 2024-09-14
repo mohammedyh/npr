@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"sort"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -166,6 +167,10 @@ func main() {
 	for scriptKey, scriptValue := range parsedJson["scripts"].(map[string]interface{}) {
 		items = append(items, Script{name: scriptKey, command: scriptValue.(string)})
 	}
+
+	sort.SliceStable(items, func(i, j int) bool {
+		return items[i].(Script).name < items[j].(Script).name
+	})
 
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
 	m.list.Title = "Scripts to Run"
