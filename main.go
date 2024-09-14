@@ -81,7 +81,12 @@ func detectPackageManager() string {
 }
 
 func installDependencies(packageManager string) {
-	_, err := os.Stat("node_modules")
+	dirContents, err := os.ReadDir("node_modules")
+
+	if len(dirContents) == 0 {
+		fmt.Println(docStyle.UnsetMargins().Render("node_modules is empty"))
+		os.Exit(0)
+	}
 
 	if err != nil {
 		command := exec.Command(packageManager, "install")
