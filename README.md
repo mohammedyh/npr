@@ -1,8 +1,8 @@
-# np-run
+ # np-run
 
 A CLI tool that lets you browse and execute npm, pnpm, yarn, or bun scripts from a local project.
 
-https://github.com/mohammedyh/np-run/assets/32526267/4b866d0e-9e0a-4251-b874-ad1ab6d8df94
+https://github.com/user-attachments/assets/348e5b90-ffee-4087-8c29-25f082eaa201
 
 ## Todo
 
