@@ -9,6 +9,8 @@ https://github.com/user-attachments/assets/348e5b90-ffee-4087-8c29-25f082eaa201
 To install the compiled version of the package run:
 
 ```sh
+go install github.com/mohammedyh/np-run@latest
+# or
 go install github.com/mohammedyh/np-run@v0.1.0
 ```
 
