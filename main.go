@@ -21,11 +21,11 @@ type Script struct {
 	name, command string
 }
 
-type CommandExecuted struct{}
-
 func (s Script) Title() string       { return s.name }
 func (s Script) Description() string { return s.command }
 func (s Script) FilterValue() string { return s.name }
+
+type CommandExecuted struct{}
 
 var lockfilesToPackageManagers = map[string]string{
 	"pnpm-lock.yaml":    "pnpm",
@@ -115,7 +115,7 @@ type model struct {
 }
 
 func (m model) Init() tea.Cmd {
-	return tea.SetWindowTitle("np-run")
+	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
