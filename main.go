@@ -127,7 +127,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		if msg.String() == "enter" {
 			script, _ := m.list.SelectedItem().(Script)
-			return m, runScript(detectPackageManager(), script.name)
+			return m, runScript(packageManager, script.name)
 		}
 	case tea.WindowSizeMsg:
 		h, v := warningStyle.GetFrameSize()
