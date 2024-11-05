@@ -13,6 +13,7 @@ import (
 )
 
 var docStyle = lipgloss.NewStyle().Margin(1, 2).Foreground(lipgloss.Color("222"))
+var errorStyle = lipgloss.NewStyle().Margin(1, 2).Foreground(lipgloss.Color("161"))
 
 type Script struct {
 	name, command string
@@ -160,6 +161,19 @@ func main() {
 	if parseErr != nil {
 		fmt.Println(docStyle.UnsetMargins().Render(parseErr.Error()))
 		os.Exit(1)
+	}
+
+	scriptsList, scriptsExist := parsedJson["scripts"].(map[string]interface{})
+	depsList, depsExist := parsedJson["dependencies"].(map[string]interface{})
+	devDepsList, devDepsExist := parsedJson["devDependencies"].(map[string]interface{})
+
+	if !scriptsExist || len(scriptsList) == 0 {
+		fmt.Println(errorStyle.Render("No scripts to run"))
+		os.Exit(1)
+	}
+
+	if (depsExist && len(depsList) > 0) || (devDepsExist && len(devDepsList) > 0) {
+		installDependencies(packageManager)
 	}
 
 	var items []list.Item
