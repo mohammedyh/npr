@@ -10,8 +10,6 @@ To install the compiled version of the package run:
 
 ```sh
 go install github.com/mohammedyh/np-run@latest
-# or
-go install github.com/mohammedyh/np-run@v0.1.0
 ```
 
 > [!IMPORTANT]  
