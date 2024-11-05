@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"sort"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -41,26 +43,18 @@ func detectPackageManager() string {
 	cwd, err := os.Getwd()
 
 	if err != nil {
-		fmt.Println(warningStyle.Render("Unable to get current directory"))
-		os.Exit(1)
+		printErrorFatal("Unable to get current directory", err)
 	}
 
 	files, err := os.ReadDir(cwd)
 
 	if err != nil {
-		fmt.Println(warningStyle.Render("Unable to read contents of current directory"))
-		os.Exit(1)
+		printErrorFatal("Unable to read contents of current directory", err)
 	}
 
 	for _, file := range files {
 		if _, setInMap := lockfilesToPackageManagers[file.Name()]; setInMap {
 			lockfiles = append(lockfiles, file.Name())
-		}
-
-		if len(lockfiles) > 1 {
-			fmt.Println(warningStyle.Render("Multiple lockfiles found in", cwd))
-			os.Exit(1)
-			break
 		}
 
 		if !file.IsDir() {
@@ -75,6 +69,11 @@ func detectPackageManager() string {
 				packageManager = "yarn"
 			}
 		}
+	}
+
+	if len(lockfiles) > 1 {
+		multipeLockfilesErr := errors.New("- " + strings.Join(lockfiles, "\n- "))
+		printErrorFatal("Found multiple lockfiles", multipeLockfilesErr)
 	}
 
 	if packageManager == "" {
@@ -95,7 +94,7 @@ func installDependencies(packageManager string) {
 		fmt.Printf("Installing %v packages\n", packageManager)
 		err := command.Run()
 		if err != nil {
-			fmt.Printf("Error running command: %v\n", err)
+			printErrorFatal("Error running command", err)
 		}
 	}
 }
@@ -142,15 +141,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	return warningStyle.Render(m.list.View())
+	return lipgloss.NewStyle().Margin(1, 2).Render(m.list.View())
 }
 
 func main() {
 	jsonData, err := os.ReadFile("package.json")
 
 	if err != nil {
-		fmt.Println(warningStyle.Render("package.json not found"))
-		os.Exit(1)
+		printErrorFatal("package.json not found", err)
 	}
 
 	detectPackageManager()
@@ -160,8 +158,7 @@ func main() {
 	parseErr := json.Unmarshal(jsonData, &parsedJson)
 
 	if parseErr != nil {
-		fmt.Println(warningStyle.Render(parseErr.Error()))
-		os.Exit(1)
+		printErrorFatal("Unable to parse package.json", parseErr)
 	}
 
 	scriptsList, scriptsExist := parsedJson["scripts"].(map[string]interface{})
@@ -197,7 +194,6 @@ func main() {
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
-		fmt.Println("Error running program:", err)
-		os.Exit(1)
+		printErrorFatal("Error running program", err)
 	}
 }
