@@ -12,8 +12,10 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2).Foreground(lipgloss.Color("222"))
-var errorStyle = lipgloss.NewStyle().Margin(1, 2).Foreground(lipgloss.Color("161"))
+var (
+	warningStyle = lipgloss.NewStyle().Margin(1, 2).Foreground(lipgloss.Color("222"))
+	errorStyle   = lipgloss.NewStyle().Margin(1, 2).Foreground(lipgloss.Color("161"))
+)
 
 type Script struct {
 	name, command string
@@ -36,17 +38,17 @@ var packageManager string
 func detectPackageManager() string {
 	var lockfiles []string
 
-	cwd, cwdErr := os.Getwd()
+	cwd, err := os.Getwd()
 
-	if cwdErr != nil {
-		fmt.Println(docStyle.Margin(0, 2).Render("Unable to get current directory"))
+	if err != nil {
+		fmt.Println(warningStyle.Render("Unable to get current directory"))
 		os.Exit(1)
 	}
 
-	files, readDirErr := os.ReadDir(cwd)
+	files, err := os.ReadDir(cwd)
 
-	if readDirErr != nil {
-		fmt.Println(docStyle.Margin(0, 2).Render("Unable to read contents of current directory"))
+	if err != nil {
+		fmt.Println(warningStyle.Render("Unable to read contents of current directory"))
 		os.Exit(1)
 	}
 
@@ -56,7 +58,7 @@ func detectPackageManager() string {
 		}
 
 		if len(lockfiles) > 1 {
-			fmt.Println(docStyle.UnsetMargins().Render("Multiple lockfiles found in", cwd))
+			fmt.Println(warningStyle.Render("Multiple lockfiles found in", cwd))
 			os.Exit(1)
 			break
 		}
@@ -82,9 +84,9 @@ func detectPackageManager() string {
 }
 
 func installDependencies(packageManager string) {
-	dirContents, err := os.ReadDir("node_modules")
+	files, err := os.ReadDir("node_modules")
 
-	if err != nil || len(dirContents) == 0 {
+	if err != nil || len(files) == 0 {
 		command := exec.Command(packageManager, "install")
 
 		command.Stdout = os.Stdout
@@ -128,7 +130,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, runScript(detectPackageManager(), script.name)
 		}
 	case tea.WindowSizeMsg:
-		h, v := docStyle.GetFrameSize()
+		h, v := warningStyle.GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
 	case CommandExecuted:
 		return m, tea.Quit
@@ -140,26 +142,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	return docStyle.Render(m.list.View())
+	return warningStyle.Render(m.list.View())
 }
 
 func main() {
-	packageJsonContent, readFileErr := os.ReadFile("package.json")
+	jsonData, err := os.ReadFile("package.json")
 
-	if readFileErr != nil {
-		fmt.Println(docStyle.UnsetMargins().Render("package.json not found"))
+	if err != nil {
+		fmt.Println(warningStyle.Render("package.json not found"))
 		os.Exit(1)
 	}
 
 	detectPackageManager()
-	installDependencies(packageManager)
 
 	var parsedJson map[string]interface{}
 
-	parseErr := json.Unmarshal(packageJsonContent, &parsedJson)
+	parseErr := json.Unmarshal(jsonData, &parsedJson)
 
 	if parseErr != nil {
-		fmt.Println(docStyle.UnsetMargins().Render(parseErr.Error()))
+		fmt.Println(warningStyle.Render(parseErr.Error()))
 		os.Exit(1)
 	}
 
