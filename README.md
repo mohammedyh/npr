@@ -1,4 +1,4 @@
- # np-run
+ # npr - (for np-run)
 
 A CLI tool that lets you browse and execute npm, pnpm, yarn, or bun scripts from a local project.
 
@@ -9,7 +9,7 @@ https://github.com/user-attachments/assets/348e5b90-ffee-4087-8c29-25f082eaa201
 To install the compiled version of the package run:
 
 ```sh
-go install github.com/mohammedyh/np-run@latest
+go install github.com/mohammedyh/npr@latest
 ```
 
 > [!IMPORTANT]  
@@ -17,20 +17,20 @@ go install github.com/mohammedyh/np-run@latest
 > 
 > Add the following to your shell config file: `export PATH="$PATH:$HOME/go/bin"`
 
-Once installed, simply run `np-run`
+Once installed, simply run `npr`
 
 ### Build From Source
 
 Clone the repo:
 
 ```sh
-git clone https://github.com/mohammedyh/np-run
+git clone https://github.com/mohammedyh/npr
 ```
 
 `cd` into the directory
 
 ```sh
-cd ~/Dev/np-run
+cd ~/Dev/npr
 ```
 
 Build and output executable
@@ -44,7 +44,7 @@ After compiling into an executable, you could move the executable file to somewh
 For example - if you moved the executable to the `.config` folder:
 
 ```sh
-alias np-run="~/.config/np-run"
+alias npr="~/.config/npr"
 ```
 
 ## Features
