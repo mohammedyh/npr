@@ -1,4 +1,4 @@
-module github.com/mohammedyh/np-run
+module github.com/mohammedyh/npr
 
 go 1.23.2
 
