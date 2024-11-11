@@ -2,7 +2,7 @@
 
 A CLI tool that lets you browse and execute npm, pnpm, yarn, or bun scripts from a local project.
 
-https://github.com/user-attachments/assets/348e5b90-ffee-4087-8c29-25f082eaa201
+![Demo usage of npr script](./demo.gif)
 
 ## Installation
 
@@ -12,9 +12,9 @@ To install the compiled version of the package run:
 go install github.com/mohammedyh/npr@latest
 ```
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > `go/bin` needs to be in your PATH to be able to run the command.
-> 
+>
 > Add the following to your shell config file: `export PATH="$PATH:$HOME/go/bin"`
 
 Once installed, simply run `npr`
