@@ -1,4 +1,4 @@
- # npr - (for np-run)
+ # npr - npm script runner
 
 A CLI tool that lets you browse and execute npm, pnpm, yarn, or bun scripts from a local project.
 
