@@ -1,6 +1,6 @@
 module github.com/mohammedyh/npr
 
-go 1.23.2
+go 1.23.3
 
 require (
 	github.com/charmbracelet/bubbles v0.20.0
