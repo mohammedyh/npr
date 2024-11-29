@@ -14,11 +14,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var (
-	warningStyle = lipgloss.NewStyle().Margin(1, 2).Foreground(lipgloss.Color("222"))
-	errorStyle   = lipgloss.NewStyle().Margin(1, 2).Foreground(lipgloss.Color("161"))
-)
-
 type PackageJsonFields struct {
 	Scripts         map[string]string `json:"scripts"`
 	Dependencies    map[string]string `json:"dependencies"`
@@ -138,7 +133,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, runScript(packageManager, script.name)
 		}
 	case tea.WindowSizeMsg:
-		h, v := warningStyle.GetFrameSize()
+		h, v := lipgloss.NewStyle().GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
 	case CommandExecuted:
 		return m, tea.Quit
@@ -171,12 +166,9 @@ func main() {
 	}
 
 	scriptsList := parsedJson.Scripts
-	depsList := parsedJson.Dependencies
-	devDepsList := parsedJson.DevDependencies
 
 	if len(scriptsList) == 0 {
-		fmt.Println(errorStyle.Render("No scripts to run"))
-		os.Exit(1)
+		printErrorFatal("No scripts to run", nil)
 	}
 
 	if len(parsedJson.Dependencies) > 0 || len(parsedJson.DevDependencies) > 0 {

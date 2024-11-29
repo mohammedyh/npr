@@ -21,8 +21,12 @@ var (
 )
 
 func printError(title string, err error) {
-	fmt.Printf("%s\n", lipgloss.JoinHorizontal(lipgloss.Center, errorHeader.String(), title))
-	fmt.Printf("%s\n", errorDetails.Render(err.Error()))
+	if err == nil {
+		fmt.Printf("%s\n", lipgloss.JoinHorizontal(lipgloss.Center, errorHeader.String(), title))
+	} else {
+		fmt.Printf("%s\n", lipgloss.JoinHorizontal(lipgloss.Center, errorHeader.String(), title))
+		fmt.Printf("%s\n", errorDetails.Render(err.Error()))
+	}
 }
 
 func printErrorFatal(title string, err error) {
