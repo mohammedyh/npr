@@ -19,6 +19,12 @@ var (
 	errorStyle   = lipgloss.NewStyle().Margin(1, 2).Foreground(lipgloss.Color("161"))
 )
 
+type PackageJsonFields struct {
+	Scripts         map[string]string `json:"scripts"`
+	Dependencies    map[string]string `json:"dependencies"`
+	DevDependencies map[string]string `json:"devDependencies"`
+}
+
 type Script struct {
 	name, command string
 }
@@ -83,15 +89,18 @@ func detectPackageManager() string {
 }
 
 func installDependencies(packageManager string) {
-	files, err := os.ReadDir("node_modules")
+	contents, err := os.ReadDir("node_modules")
 
-	if err != nil || len(files) == 0 {
+	if err != nil || len(contents) == 0 {
+		if os.IsPermission(err) {
+			printErrorFatal("Unable to read node_modules directory", err)
+		}
+
 		command := exec.Command(packageManager, "install")
-
 		command.Stdout = os.Stdout
 		command.Stderr = os.Stderr
 
-		fmt.Printf("Installing %v packages\n", packageManager)
+		fmt.Printf("Installing packages using %v\n", packageManager)
 		err := command.Run()
 		if err != nil {
 			printErrorFatal("Error running command", err)
@@ -153,7 +162,7 @@ func main() {
 
 	detectPackageManager()
 
-	var parsedJson map[string]interface{}
+	var parsedJson PackageJsonFields
 
 	parseErr := json.Unmarshal(jsonData, &parsedJson)
 
@@ -161,23 +170,23 @@ func main() {
 		printErrorFatal("Unable to parse package.json", parseErr)
 	}
 
-	scriptsList, scriptsExist := parsedJson["scripts"].(map[string]interface{})
-	depsList, depsExist := parsedJson["dependencies"].(map[string]interface{})
-	devDepsList, devDepsExist := parsedJson["devDependencies"].(map[string]interface{})
+	scriptsList := parsedJson.Scripts
+	depsList := parsedJson.Dependencies
+	devDepsList := parsedJson.DevDependencies
 
-	if !scriptsExist || len(scriptsList) == 0 {
+	if len(scriptsList) == 0 {
 		fmt.Println(errorStyle.Render("No scripts to run"))
 		os.Exit(1)
 	}
 
-	if (depsExist && len(depsList) > 0) || (devDepsExist && len(devDepsList) > 0) {
+	if len(parsedJson.Dependencies) > 0 || len(parsedJson.DevDependencies) > 0 {
 		installDependencies(packageManager)
 	}
 
 	var items []list.Item
 
-	for scriptKey, scriptValue := range parsedJson["scripts"].(map[string]interface{}) {
-		items = append(items, Script{name: scriptKey, command: scriptValue.(string)})
+	for name, command := range scriptsList {
+		items = append(items, Script{name, command})
 	}
 
 	sort.SliceStable(items, func(i, j int) bool {
