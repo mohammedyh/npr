@@ -42,33 +42,22 @@ func detectPackageManager() string {
 	var lockfiles []string
 
 	cwd, err := os.Getwd()
-
 	if err != nil {
 		printErrorFatal("Unable to get current directory", err)
 	}
 
-	files, err := os.ReadDir(cwd)
-
+	dirEntry, err := os.ReadDir(cwd)
 	if err != nil {
 		printErrorFatal("Unable to read contents of current directory", err)
 	}
 
-	for _, file := range files {
-		if _, setInMap := lockfilesToPackageManagers[file.Name()]; setInMap {
-			lockfiles = append(lockfiles, file.Name())
+	for _, entry := range dirEntry {
+		if entry.IsDir() {
+			continue
 		}
 
-		if !file.IsDir() {
-			switch file.Name() {
-			case "pnpm-lock.yaml":
-				packageManager = "pnpm"
-			case "package-lock.json":
-				packageManager = "npm"
-			case "bun.lockb":
-				packageManager = "bun"
-			case "yarn.lock":
-				packageManager = "yarn"
-			}
+		if _, exists := lockfilesToPackageManagers[entry.Name()]; exists {
+			lockfiles = append(lockfiles, entry.Name())
 		}
 	}
 
@@ -77,6 +66,7 @@ func detectPackageManager() string {
 		printErrorFatal("Found multiple lockfiles", multipeLockfilesErr)
 	}
 
+	packageManager = lockfilesToPackageManagers[lockfiles[0]]
 	if packageManager == "" {
 		packageManager = "npm"
 	}
@@ -85,7 +75,6 @@ func detectPackageManager() string {
 
 func installDependencies(packageManager string) {
 	contents, err := os.ReadDir("node_modules")
-
 	if err != nil || len(contents) == 0 {
 		if os.IsPermission(err) {
 			printErrorFatal("Unable to read node_modules directory", err)
@@ -150,7 +139,6 @@ func (m model) View() string {
 
 func main() {
 	jsonData, err := os.ReadFile("package.json")
-
 	if err != nil {
 		printErrorFatal("package.json not found", err)
 	}
