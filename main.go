@@ -35,6 +35,7 @@ var lockfilesToPackageManagers = map[string]string{
 	"package-lock.json": "npm",
 	"bun.lockb":         "bun",
 	"yarn.lock":         "yarn",
+	"deno.lock":         "deno",
 }
 var packageManager string
 
