@@ -2,7 +2,7 @@
 
 A CLI tool that lets you browse and execute npm, pnpm, yarn, or bun scripts from a local project.
 
-![Demo usage of npr script](./demo.gif)
+![Demo usage of npr script](./.github/demo.gif)
 
 ## Installation
 
