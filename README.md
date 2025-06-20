@@ -1,6 +1,6 @@
  # npr - npm script runner
 
-A CLI tool that lets you browse and execute npm, pnpm, yarn, or bun scripts from a local project.
+A CLI tool to browse and execute npm, pnpm, yarn, or bun scripts from a local project.
 
 ![Demo usage of npr script](./.github/demo.gif)
 
@@ -49,12 +49,7 @@ alias npr="~/.config/npr"
 
 ## Features
 
-- Display scripts in an interactive list which can be navigated through using vim motions or arrow keys
+- Display scripts in an interactive list navigable via vim motions or arrow keys
 - Auto-detect package manager from npm, pnpm, yarn and bun
 - Scripts are sorted in alphabetical order
-- Auto-install dependencies if package.json is found but `node_modules` isn't
-
-
-## Todo
-
-- [ ] Look at how to properly structure a Go program
+- Auto-install install dependencies if needed
