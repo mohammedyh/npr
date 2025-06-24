@@ -30,50 +30,7 @@ func (s Script) FilterValue() string { return s.name }
 
 type CommandExecuted struct{}
 
-var lockfilesToPackageManagers = map[string]string{
-	"pnpm-lock.yaml":    "pnpm",
-	"package-lock.json": "npm",
-	"bun.lockb":         "bun",
-	"bun.lock":          "bun",
-	"yarn.lock":         "yarn",
-	"deno.lock":         "deno",
-}
 var packageManager string
-
-func detectPackageManager() string {
-	var lockfiles []string
-
-	cwd, err := os.Getwd()
-	if err != nil {
-		printErrorFatal("Unable to get current directory", err)
-	}
-
-	dirEntry, err := os.ReadDir(cwd)
-	if err != nil {
-		printErrorFatal("Unable to read contents of current directory", err)
-	}
-
-	for _, entry := range dirEntry {
-		if entry.IsDir() {
-			continue
-		}
-
-		if _, exists := lockfilesToPackageManagers[entry.Name()]; exists {
-			lockfiles = append(lockfiles, entry.Name())
-		}
-	}
-
-	if len(lockfiles) > 1 {
-		multipeLockfilesErr := errors.New("- " + strings.Join(lockfiles, "\n- "))
-		printErrorFatal("Found multiple lockfiles", multipeLockfilesErr)
-	}
-
-	packageManager = lockfilesToPackageManagers[lockfiles[0]]
-	if packageManager == "" {
-		packageManager = "npm"
-	}
-	return packageManager
-}
 
 func installDependencies(packageManager string) {
 	contents, err := os.ReadDir("node_modules")
@@ -104,59 +61,21 @@ func runScript(packageManager, scriptName string) tea.Cmd {
 	})
 }
 
-type model struct {
-	list list.Model
-}
-
-func (m model) Init() tea.Cmd {
-	return nil
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		if msg.String() == "ctrl+c" {
-			return m, tea.Quit
-		}
-
-		if msg.String() == "enter" {
-			script, _ := m.list.SelectedItem().(Script)
-			return m, runScript(packageManager, script.name)
-		}
-	case tea.WindowSizeMsg:
-		h, v := lipgloss.NewStyle().GetFrameSize()
-		m.list.SetSize(msg.Width-h, msg.Height-v)
-	case CommandExecuted:
-		return m, tea.Quit
-	}
-
-	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
-	return m, cmd
-}
-
-func (m model) View() string {
-	return lipgloss.NewStyle().Margin(1, 2).Render(m.list.View())
-}
-
 func main() {
 	jsonData, err := os.ReadFile("package.json")
 	if err != nil {
 		printErrorFatal("package.json not found", err)
 	}
 
-	detectPackageManager()
-
+	packageManager = detectPackageManager()
 	var parsedJson PackageJsonFields
 
 	parseErr := json.Unmarshal(jsonData, &parsedJson)
-
 	if parseErr != nil {
 		printErrorFatal("Unable to parse package.json", parseErr)
 	}
 
 	scriptsList := parsedJson.Scripts
-
 	if len(scriptsList) == 0 {
 		printErrorFatal("No scripts to run", nil)
 	}
