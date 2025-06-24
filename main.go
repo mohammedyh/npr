@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -35,7 +36,7 @@ var packageManager string
 func installDependencies(packageManager string) {
 	contents, err := os.ReadDir("node_modules")
 	if err != nil || len(contents) == 0 {
-		if os.IsPermission(err) {
+		if errors.Is(err, fs.ErrPermission) {
 			printErrorFatal("Unable to read node_modules directory", err)
 		}
 
@@ -90,8 +91,8 @@ func main() {
 		items = append(items, Script{name, command})
 	}
 
-	sort.SliceStable(items, func(i, j int) bool {
-		return items[i].(Script).name < items[j].(Script).name
+	slices.SortStableFunc(items, func(i, j list.Item) int {
+		return strings.Compare(i.(Script).name, j.(Script).name)
 	})
 
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
