@@ -38,5 +38,5 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	return lipgloss.NewStyle().Margin(1, 2).Render(m.list.View())
+	return lipgloss.NewStyle().Margin(0, 2).Render(m.list.View())
 }

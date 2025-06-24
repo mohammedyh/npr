@@ -96,11 +96,12 @@ func main() {
 	})
 
 	m := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
-	m.list.Title = "Scripts to Run"
+	m.list.Title = "Scripts"
 	m.list.Styles.Title = lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#fff")).
 		Background(lipgloss.Color("#bc54c4")).
-		Padding(0, 1)
+		Padding(0, 1).
+		MarginTop(1)
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
