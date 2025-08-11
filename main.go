@@ -70,6 +70,9 @@ func main() {
 	if err != nil {
 		printErrorFatal(err.(*DetectionError).Title, err.(*DetectionError).Err)
 	}
+	if _, err := exec.LookPath(packageManager); err != nil {
+		printErrorFatal("Package manager executable not found", err)
+	}
 
 	var packageJson PackageJsonFields
 	if err = json.Unmarshal(data, &packageJson); err != nil {
