@@ -66,7 +66,7 @@ func main() {
 		printErrorFatal("package.json not found", err)
 	}
 
-	packageManager, err := detectPackageManager()
+	packageManager, err = detectPackageManager()
 	if err != nil {
 		printErrorFatal(err.(*DetectionError).Title, err.(*DetectionError).Err)
 	}
