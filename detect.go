@@ -6,6 +6,13 @@ import (
 	"strings"
 )
 
+type DetectionError struct {
+	Title string
+	Err   error
+}
+
+func (e *DetectionError) Error() string { return e.Err.Error() }
+
 var lockfilesToPackageManagers = map[string]string{
 	"pnpm-lock.yaml":    "pnpm",
 	"pnpm-lock.yml":     "pnpm",
@@ -16,35 +23,34 @@ var lockfilesToPackageManagers = map[string]string{
 	"deno.lock":         "deno",
 }
 
-func detectPackageManager() string {
+func detectPackageManager() (string, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
-		printErrorFatal("Unable to get current directory", err)
+		return "", &DetectionError{"Unable to get current directory", err}
 	}
 
-	dirEntry, err := os.ReadDir(cwd)
+	entries, err := os.ReadDir(cwd)
 	if err != nil {
-		printErrorFatal("Unable to read contents of current directory", err)
+		return "", &DetectionError{"Unable to read contents of current directory", err}
 	}
 
 	var lockfiles []string
-	for _, entry := range dirEntry {
+	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
 		}
-
 		if _, exists := lockfilesToPackageManagers[entry.Name()]; exists {
 			lockfiles = append(lockfiles, entry.Name())
 		}
 	}
 
 	if len(lockfiles) > 1 {
-		multipeLockfilesErr := errors.New("- " + strings.Join(lockfiles, "\n- "))
-		printErrorFatal("Found multiple lockfiles", multipeLockfilesErr)
+		multipleLockfilesErr := errors.New("- " + strings.Join(lockfiles, "\n- "))
+		return "", &DetectionError{Title: "Found multiple lockfiles", Err: multipleLockfilesErr}
 	}
 
 	if len(lockfiles) == 0 {
-		return "npm"
+		return "npm", nil
 	}
-	return lockfilesToPackageManagers[lockfiles[0]]
+	return lockfilesToPackageManagers[lockfiles[0]], nil
 }

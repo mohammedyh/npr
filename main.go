@@ -43,10 +43,8 @@ func installDependencies(packageManager string) {
 		command := exec.Command(packageManager, "install")
 		command.Stdout = os.Stdout
 		command.Stderr = os.Stderr
-
 		fmt.Printf("Installing packages using %v\n", packageManager)
-		err := command.Run()
-		if err != nil {
+		if err := command.Run(); err != nil {
 			printErrorFatal("Error running command", err)
 		}
 	}
@@ -63,31 +61,32 @@ func runScript(packageManager, scriptName string) tea.Cmd {
 }
 
 func main() {
-	jsonData, err := os.ReadFile("package.json")
+	data, err := os.ReadFile("package.json")
 	if err != nil {
 		printErrorFatal("package.json not found", err)
 	}
 
-	packageManager = detectPackageManager()
-	var parsedJson PackageJsonFields
-
-	parseErr := json.Unmarshal(jsonData, &parsedJson)
-	if parseErr != nil {
-		printErrorFatal("Unable to parse package.json", parseErr)
+	packageManager, err := detectPackageManager()
+	if err != nil {
+		printErrorFatal(err.(*DetectionError).Title, err.(*DetectionError).Err)
 	}
 
-	scriptsList := parsedJson.Scripts
-	if len(scriptsList) == 0 {
+	var parsedJson PackageJsonFields
+	if err = json.Unmarshal(data, &parsedJson); err != nil {
+		printErrorFatal("Unable to parse package.json", err)
+	}
+
+	scripts := parsedJson.Scripts
+	if len(scripts) == 0 {
 		printErrorFatal("No scripts to run", nil)
 	}
-
 	if len(parsedJson.Dependencies) > 0 || len(parsedJson.DevDependencies) > 0 {
 		installDependencies(packageManager)
 	}
 
 	var items []list.Item
 
-	for name, command := range scriptsList {
+	for name, command := range scripts {
 		items = append(items, Script{name, command})
 	}
 
@@ -104,7 +103,6 @@ func main() {
 		MarginTop(1)
 
 	p := tea.NewProgram(m, tea.WithAltScreen())
-
 	if _, err := p.Run(); err != nil {
 		printErrorFatal("Error running program", err)
 	}
