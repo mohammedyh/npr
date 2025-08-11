@@ -71,21 +71,20 @@ func main() {
 		printErrorFatal(err.(*DetectionError).Title, err.(*DetectionError).Err)
 	}
 
-	var parsedJson PackageJsonFields
-	if err = json.Unmarshal(data, &parsedJson); err != nil {
+	var packageJson PackageJsonFields
+	if err = json.Unmarshal(data, &packageJson); err != nil {
 		printErrorFatal("Unable to parse package.json", err)
 	}
 
-	scripts := parsedJson.Scripts
+	scripts := packageJson.Scripts
 	if len(scripts) == 0 {
 		printErrorFatal("No scripts to run", nil)
 	}
-	if len(parsedJson.Dependencies) > 0 || len(parsedJson.DevDependencies) > 0 {
+	if len(packageJson.Dependencies) > 0 || len(packageJson.DevDependencies) > 0 {
 		installDependencies(packageManager)
 	}
 
 	var items []list.Item
-
 	for name, command := range scripts {
 		items = append(items, Script{name, command})
 	}
