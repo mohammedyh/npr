@@ -1,6 +1,6 @@
- # npr - npm script runner
+# npr
 
-A CLI tool to browse and execute npm, pnpm, yarn, or bun scripts from a local project.
+A small TUI to browse and execute node scripts - supports npm, pnpm, yarn, bun and deno.
 
 ![Demo usage of npr script](./.github/demo.gif)
 
